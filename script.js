@@ -1,2 +1,5 @@
 const testConsoleBtn = document.getElementById("test-console-btn");
-testConsoleBtn.onclick = () => console.log("TEST");
+testConsoleBtn.onclick = () => {
+    document.querySelector("*").classList.toggle("actually-light-theme");
+};
+
