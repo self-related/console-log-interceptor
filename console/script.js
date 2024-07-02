@@ -1,21 +1,22 @@
 /// DOM binds and constants
+const consoleInput = document.getElementById("console-input");
 const consoleOutput = document.getElementById("console-output");
 const clearConsoleBtn = document.getElementById("clear-console-btn");
 const stopConsoleBtn = document.getElementById("stop-console-btn");
 const testConsoleBtn = document.getElementById("test-console-btn");
-const consoleInput = document.getElementById("console-input");
 const toggleConsoleMultiline = document.getElementById("toggle-console-multiline-btn");
 const consoleLog = console.log;
 
+//bind console.log
+console.log = interseptConsoleLog;
 
 /// states
 let consoleScrolledDown = true;
 let isLogging = true;
 let isMultiline = false; //сделать isSingleLine
-
+let isSelecting = false; //когда текст не выделяется, фокус на console-input
 
 /// functions
-console.log = interseptConsoleLog;
 function interseptConsoleLog(msg) {
     consoleLog(msg);
     consoleOutput.innerHTML += `<p>${msg}</p>`;
@@ -36,22 +37,22 @@ function execute (event) {
 
 
 /// events
-    //чек когда прокручено вниз
+//чек когда прокручено вниз
 consoleOutput.addEventListener("scroll", (e) => {
     const element = e.currentTarget;
     const posY = element.scrollHeight - (element.scrollTop + element.clientHeight);
     consoleScrolledDown = (posY <= 5); // погрешность 5п на всякий
 });
 
-    //get message from main window 
-    //переделать на экспорт функции модуля
-    //div вместо iframe, менять размер, сохраниение позиции
+//get message from main window 
+//переделать на экспорт функции модуля
+//div вместо iframe, менять размер, сохраниение позиции
 window.addEventListener("message", (event) => {
     interseptConsoleLog(event.data);
 });
 
-    // super bad idea
-    // вместо этого добавлять и убирать listeners с разными лямбдами?
+// super bad idea
+// вместо этого добавлять и убирать listeners с разными лямбдами?
 let ctrlPressed = false;
 let enterPressed = false;
 
@@ -74,7 +75,7 @@ consoleInput.addEventListener("keyup", (event) => {
 consoleInput.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && !isMultiline) {
         event.preventDefault();
-        //передавать сразу строку
+        //изменить, чтобы передавать сразу строку
         execute(event);
         return;
     }
@@ -97,13 +98,13 @@ toggleConsoleMultiline.addEventListener("click", () => {
     
 });
 
-    // clean console, все ок
+//clean console
 clearConsoleBtn.addEventListener("click", () => {
     consoleOutput.innerHTML = "";
     consoleInput.value = "";
 });
 
-    // actually pauses console output
+//actually pauses console output
 stopConsoleBtn.addEventListener("click", () => {
     if (isLogging) {
         console.log = consoleLog;
@@ -117,7 +118,7 @@ stopConsoleBtn.addEventListener("click", () => {
 
 });
 
-    //simple counter for console output
+//simple counter for console output
 testConsoleBtn.onclick = async () => {
     testConsoleBtn.disabled = true;
     for (let i = 0; i < 30; i++) {
@@ -127,12 +128,12 @@ testConsoleBtn.onclick = async () => {
     testConsoleBtn.disabled = false;
 };
 
-// change it
-let isSelecting = false;
-consoleOutput.addEventListener("selectstart", () => {
+// предотвратить фокус, если начинается выделение текста в консоли
+consoleOutput.addEventListener("selectstart", (_) => {
     isSelecting = true;
 });
-consoleOutput.addEventListener("mouseup", () => {
+
+consoleOutput.addEventListener("mouseup", (_) => {
     if (!isSelecting) {
         consoleInput.focus();
     }
