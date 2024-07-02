@@ -19,7 +19,7 @@ let isSelecting = false; //когда текст не выделяется, фо
 /// functions
 function interseptConsoleLog(msg) {
     consoleLog(msg);
-    consoleOutput.innerHTML += `<p>${msg}</p>`;
+    consoleOutput.insertAdjacentHTML('beforeend', `<p>${msg}</p>`);
     if (consoleScrolledDown) { // проскроллить вниз автоматически, если уже было внизу
         consoleOutput.scroll(consoleOutput.scrollLeft, consoleOutput.scrollHeight);
     }
@@ -50,9 +50,18 @@ consoleOutput.addEventListener("scroll", (e) => {
 window.addEventListener("message", (event) => {
     interseptConsoleLog(event.data);
 });
-
+//----------------------------------------------------------------------------
 // super bad idea
 // вместо этого добавлять и убирать listeners с разными лямбдами?
+
+const singleLineInput = () => {
+
+}
+const multiLineInput = () => {
+
+}
+
+
 let ctrlPressed = false;
 let enterPressed = false;
 
@@ -84,6 +93,7 @@ consoleInput.addEventListener("keydown", (event) => {
     }
     
 });
+//----------------------------------------------------------------------------
 
 toggleConsoleMultiline.addEventListener("click", () => {
     if (isMultiline) {
@@ -128,15 +138,17 @@ testConsoleBtn.onclick = async () => {
     testConsoleBtn.disabled = false;
 };
 
-// предотвратить фокус, если начинается выделение текста в консоли
-consoleOutput.addEventListener("selectstart", (_) => {
+// предотвратить фокус на вводе, если начинается выделение текста в консоли
+consoleOutput.addEventListener("selectstart", (e) => {
     isSelecting = true;
 });
+consoleOutput.addEventListener("mouseup", (e) => {
 
-consoleOutput.addEventListener("mouseup", (_) => {
+    if (e.button === 2) {
+        return;
+    }
     if (!isSelecting) {
         consoleInput.focus();
     }
     isSelecting = false;
-
 });
