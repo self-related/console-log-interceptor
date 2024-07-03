@@ -1,4 +1,5 @@
-initConsole(); //initialize console's html and css first
+//initialize console's html and css first
+initConsole(); 
 
 ///DOM binds and constants
 const consoleInput = document.getElementById("_console-input");
@@ -11,6 +12,7 @@ const consoleLog = console.log; //preserve actual console.log
 const consoleUpperBorder = document.getElementById("_upper-border");
 const consoleDiv = document.getElementById("_console-div")
 const consolePanel = document.getElementById("_console-panel");
+
 //Bind console.log
 console.log = interseptConsoleLog;
 
@@ -41,25 +43,27 @@ function execute(event) {
 }
 
 
-///Lambdas
-const enterPressed = (event) => {    //по нажатию Enter вызывает команду (для ивента keydown)
+///Arrow Functions
+    //по нажатию Enter вызывает команду из input (для ивента keydown)
+const enterPressed = (event) => {    
     if (event.key === "Enter") {
-        event.preventDefault();
+        event.preventDefault();     //не добавлять отступ в <textarea>
         execute(event);
     }
 };
-
-const ctrlPressed = (event) => {    //если нажат Ctrl, добавляет listener нажатия Enter
+    //если нажат Ctrl, добавляет listener нажатия Enter
+const ctrlPressed = (event) => {    
     if (event.key === "Control") {
         event.currentTarget.addEventListener("keydown", enterPressed);
     }
 };
-
-const ctrlUnpressed = (event) => {    //когда ctrl отпущен, убирает listener нажатия Enter
+//когда ctrl отпущен, удаляет listener нажатия Enter
+const ctrlUnpressed = (event) => {    
     event.currentTarget.removeEventListener("keydown", enterPressed);
 };
 
-const toggleInputType = (event) => {   //меняет режим ввода
+// callback для смены режима ввода (single-line, multi-line) 
+const toggleInputType = (event) => {   
     isSingleLine = !isSingleLine;
     const button = event.currentTarget;
     if (isSingleLine) {        //добавляет listener Enter, убирает Ctrl
@@ -77,30 +81,28 @@ const toggleInputType = (event) => {   //меняет режим ввода
 
 
 ///Events
-consoleInput.addEventListener("keydown", enterPressed);          //слушает Enter по-умолчанию
+    // по-умолчанию запуск команды из input по нажатию Enter (передает в eval)
+consoleInput.addEventListener("keydown", enterPressed);
 
-toggleInputTypeBtn.addEventListener("click", toggleInputType);   //кнопка меняет режим ввода
+    //кнопка меняет режим ввода
+toggleInputTypeBtn.addEventListener("click", toggleInputType);   
 
-    //get message from main window 
-    //переделать на экспорт функции модуля
-    //div вместо iframe, менять размер, сохраниение позиции
-    window.addEventListener("message", (event) => {
-        interseptConsoleLog(event.data);
-    });
-
-consoleOutput.addEventListener("scroll", (e) => {     //чек когда уже прокручено вниз
-    const element = e.currentTarget;
+//во время прокрутки проверяет, прокручено ли сейчас до конца
+//нужно для автопрокрутки во время вывода в консоль 
+consoleOutput.addEventListener("scroll", (event) => {     
+    const element = event.currentTarget;
     const posY = element.scrollHeight - (element.scrollTop + element.clientHeight);
     consoleScrolledDown = (posY <= 5);      //погрешность 5п на всякий
 });
 
-
-clearConsoleBtn.addEventListener("click", () => {       //clean console button
+//button to clean console 
+clearConsoleBtn.addEventListener("click", () => {       
     consoleOutput.innerHTML = "";
     consoleInput.value = "";
 });
 
-stopConsoleBtn.addEventListener("click", () => {        //actually pauses console logging
+//stop logging in console
+stopConsoleBtn.addEventListener("click", () => {        
     isLogging = !isLogging;
     if (isLogging) {
         console.log = interseptConsoleLog;
@@ -112,11 +114,9 @@ stopConsoleBtn.addEventListener("click", () => {        //actually pauses consol
 
 });
 
-consoleOutput.addEventListener("selectstart", (e) => { // предотвратить фокус на вводе при выделении текста в консоли
-    isSelecting = true;
-});
 
-consoleOutput.addEventListener("mouseup", (e) => { //фокус на вводе при клике
+//при клике на экран консоли перемещает фокус на ввод
+consoleOutput.addEventListener("mouseup", (e) => { 
     if (e.button === 2) {
         return;
     }
@@ -126,7 +126,13 @@ consoleOutput.addEventListener("mouseup", (e) => { //фокус на вводе 
     isSelecting = false;
 });
 
-testConsoleBtn.onclick = async () => {      //simple counter for console output
+// предотвратить фокус на ввод, если начато выделение текста
+consoleOutput.addEventListener("selectstart", (e) => { 
+    isSelecting = true;
+});
+
+//simple counter for console output
+testConsoleBtn.onclick = async () => {      
     testConsoleBtn.disabled = true;
     for (let i = 0; i < 30; i++) {
         console.log(i + "_".repeat(40) + ` ${i}` + "_".repeat(200));
