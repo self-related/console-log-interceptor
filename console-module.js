@@ -26,7 +26,9 @@ let isSelecting = false; //когда текст не выделяется, фо
 ///Functions
 function interseptConsoleLog(msg) {
     consoleLog(msg);
-    consoleOutput.insertAdjacentHTML('beforeend', `<p>${msg}</p>`);
+    //separate messages by \n and push them one by one
+    const msgs = msg.split('\n');
+    msgs.forEach((msg) => consoleOutput.insertAdjacentHTML('beforeend', `<p>${msg}</p>`));
     if (consoleScrolledDown) { // проскроллить вниз автоматически, если уже было внизу
         consoleOutput.scroll(consoleOutput.scrollLeft, consoleOutput.scrollHeight);
     }
