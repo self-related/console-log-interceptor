@@ -8,7 +8,9 @@ const stopConsoleBtn = document.getElementById("_stop-console-btn");
 const testConsoleBtn = document.getElementById("_test-console-btn");
 const toggleInputTypeBtn = document.getElementById("_toggle-input-type-btn");
 const consoleLog = console.log; //preserve actual console.log
-
+const consoleUpperBorder = document.getElementById("_upper-border");
+const consoleDiv = document.getElementById("_console-div")
+const consolePanel = document.getElementById("_console-panel");
 //Bind console.log
 console.log = interseptConsoleLog;
 
@@ -134,15 +136,45 @@ testConsoleBtn.onclick = async () => {      //simple counter for console output
 };
 
 
+//callback for changing console's height, outer variable to add and remove the exact listener later
+let changeConsoleHeight;    
+let preventSelection = (event) => event.preventDefault(); // callback to disable text selecting while moving
+
+//make top border resizable
+consoleUpperBorder.addEventListener("mousedown", (event) => {
+    //get current Y on click and console's height
+    let yOnClick = event.screenY;
+    let currentHeight = consoleDiv.clientHeight;
+    
+    //changes console's height:
+    changeConsoleHeight = (event) => {
+        let yOnMove = event.screenY
+        let heightOffset = yOnClick - yOnMove;
+        consoleDiv.style.height = (currentHeight + heightOffset) + "px";
+        };
+    //add listener to window which calculates Y on every mouse move
+    window.addEventListener("mousemove", changeConsoleHeight);
+    consoleDiv.addEventListener("selectstart", preventSelection); //prevent text selecting
+} );
+//remove listeners when mouse is unpressed
+consoleUpperBorder.addEventListener("mouseup", (event) => {
+    window.removeEventListener("mousemove", changeConsoleHeight);
+    consoleDiv.removeEventListener("selectstart", preventSelection);
+    event.stopImmediatePropagation();
+});
+
+
+
 // init console html and css
 function initConsole() {
     const consoleDiv = document.createElement("div");
-    consoleDiv.id = "console-div";
+    consoleDiv.id = "_console-div";
     const consoleStyle = document.createElement("style");
     document.body.appendChild(consoleDiv);
     document.head.appendChild(consoleStyle);
 
     consoleDiv.innerHTML = `
+    <div id="_upper-border"></div>
     <div class="console-panel" id="console-panel">
         <button id="_clear-console-btn" class="button">clear</button>
         <button id="_stop-console-btn" class="button">stop logging</button>
@@ -170,7 +202,7 @@ function initConsole() {
             background: rgb(253, 158, 5);
         }
 
-        #console-div {
+        #_console-div {
             z-index: 100;
             width: 90%;
             height: 250px;
@@ -182,6 +214,8 @@ function initConsole() {
             background-color: black;    
             color: white;
             box-sizing: border-box;
+            border-top-left-radius: 7px;
+            border-top-right-radius: 7px;
         }
 
         #console-panel {
@@ -217,6 +251,14 @@ function initConsole() {
 
         #_console-output p {
             margin: 6px;
+        }
+        #_upper-border {
+            width: 100%;
+            height: 7px;
+            background-color: #404040;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            cursor: ns-resize;
         }
     `;
 }
