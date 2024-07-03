@@ -172,7 +172,7 @@ function initConsole() {
 
         #console-div {
             z-index: 100;
-            width: 55%;
+            width: 90%;
             height: 250px;
             position: fixed;
             bottom: 0;
