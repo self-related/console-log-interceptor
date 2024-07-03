@@ -1,10 +1,12 @@
+initConsole(); //initialize console's html and css first
+
 ///DOM binds and constants
-const consoleInput = document.getElementById("console-input");
-const consoleOutput = document.getElementById("console-output");
-const clearConsoleBtn = document.getElementById("clear-console-btn");
-const stopConsoleBtn = document.getElementById("stop-console-btn");
-const testConsoleBtn = document.getElementById("test-console-btn");
-const toggleInputTypeBtn = document.getElementById("toggle-input-type-btn");
+const consoleInput = document.getElementById("_console-input");
+const consoleOutput = document.getElementById("_console-output");
+const clearConsoleBtn = document.getElementById("_clear-console-btn");
+const stopConsoleBtn = document.getElementById("_stop-console-btn");
+const testConsoleBtn = document.getElementById("_test-console-btn");
+const toggleInputTypeBtn = document.getElementById("_toggle-input-type-btn");
 const consoleLog = console.log; //preserve actual console.log
 
 //Bind console.log
@@ -14,7 +16,7 @@ console.log = interseptConsoleLog;
 let consoleScrolledDown = true;
 let isLogging = true;
 let isSingleLine = true;
-let isSelecting = false; //когда текст не выделяется, фокус на console-input; иначе без фокуса
+let isSelecting = false; //когда текст не выделяется, фокус на _console-input; иначе без фокуса
 
 
 ///Functions
@@ -130,3 +132,91 @@ testConsoleBtn.onclick = async () => {      //simple counter for console output
     }
     testConsoleBtn.disabled = false;
 };
+
+
+// init console html and css
+function initConsole() {
+    const consoleDiv = document.createElement("div");
+    consoleDiv.id = "console-div";
+    const consoleStyle = document.createElement("style");
+    document.body.appendChild(consoleDiv);
+    document.head.appendChild(consoleStyle);
+
+    consoleDiv.innerHTML = `
+    <div class="console-panel" id="console-panel">
+        <button id="_clear-console-btn" class="button">clear</button>
+        <button id="_stop-console-btn" class="button">stop logging</button>
+        <button id="_test-console-btn" class="button">test output</button>
+        <button id="_toggle-input-type-btn" class="button">multi-line</button>
+    </div>
+    <div id="_console-output"></div>
+    <textarea id="_console-input" placeholder="Enter"></textarea>
+    `;
+
+    consoleStyle.innerHTML = `
+        .button {
+            border: 0;
+            margin-left: 5px;
+            margin-top: 5px;
+            border-radius: 3px;
+            background: linear-gradient( rgb(255, 98, 0) 45%, rgb(205, 55, 55) 65%, rgb(255, 98, 0) 100%);
+            color: white;
+            text-shadow: 1px 0px 2px black;
+        }
+        .button:hover{
+            background: red;
+        }
+        .button:active {
+            background: rgb(253, 158, 5);
+        }
+
+        #console-div {
+            z-index: 100;
+            width: 55%;
+            height: 250px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            background-color: black;    
+            color: white;
+            box-sizing: border-box;
+        }
+
+        #console-panel {
+            background-color: black;
+            height: 10%;
+            max-height: 15vh;
+            border-radius: 10px;
+
+        }
+
+
+        #_console-output {
+            margin-top: 2px;
+            height: 75%;
+            overflow-y: scroll;
+            margin-bottom: 1px;
+            text-wrap: nowrap;
+        }
+
+        #_console-input {
+            background-color: black;    
+            border: none;
+            color: white;
+            height: 10%;
+            width: 97%;
+            position: absolute;
+            bottom: 0;
+            resize: none;
+        }
+        #_console-input:focus {
+            outline: 0;
+        }
+
+        #_console-output p {
+            margin: 6px;
+        }
+    `;
+}
