@@ -150,6 +150,7 @@ let preventSelection = (event) => event.preventDefault(); // callback to disable
 
 //make top border resizable
 consoleUpperBorder.addEventListener("mousedown", (event) => {
+    window.removeEventListener("mousemove", changeConsoleHeight); // по клику прекращает бесконечный ресайз
     //get current Y on click and console's height
     let yOnClick = event.screenY;
     let currentHeight = consoleDiv.clientHeight;
