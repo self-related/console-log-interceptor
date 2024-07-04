@@ -8,13 +8,15 @@ const clearConsoleBtn = document.getElementById("_clear-console-btn");
 const stopConsoleBtn = document.getElementById("_stop-console-btn");
 const testConsoleBtn = document.getElementById("_test-console-btn");
 const toggleInputTypeBtn = document.getElementById("_toggle-input-type-btn");
-const consoleLog = console.log; //preserve actual console.log
 const consoleUpperBorder = document.getElementById("_upper-border");
 const consoleDiv = document.getElementById("_console-div")
 const consolePanel = document.getElementById("_console-panel");
+const consoleLog = console.log; //preserve actual console.log
+const consoleError = console.error; //preserve actual console.error
 
-//Bind console.log
+//Bind console.log and console.error
 console.log = interseptConsoleLog;
+console.error = interseptErrorLog;
 
 ///States
 let consoleScrolledDown = true;
@@ -26,10 +28,20 @@ let isSelecting = false; //когда текст не выделяется, фо
 ///Functions
 function interseptConsoleLog(msg) {
     consoleLog(msg);
-    //separate messages by \n and push them one by one
-    const msgs = msg.split('\n');
+    //split messages by \n and push them one by one
+    const msgs = msg.split?.('\n') ?? [msg]; //if not a string, put all msg in array
     msgs.forEach((msg) => consoleOutput.insertAdjacentHTML('beforeend', `<p>${msg}</p>`));
     if (consoleScrolledDown) { // проскроллить вниз автоматически, если уже было внизу
+        consoleOutput.scroll(consoleOutput.scrollLeft, consoleOutput.scrollHeight);
+    }
+}
+
+//same as above, but for console.error with red colored text
+function interseptErrorLog(msg) {
+    consoleError(msg);
+    const msgs = msg.split?.('\n') ?? [msg];
+    msgs.forEach((msg) => consoleOutput.insertAdjacentHTML('beforeend', `<p style="color: red">${msg}</p>`));
+    if (consoleScrolledDown) {
         consoleOutput.scroll(consoleOutput.scrollLeft, consoleOutput.scrollHeight);
     }
 }
@@ -40,7 +52,7 @@ function execute(event) {
     try {
         eval(cmd);
     } catch(e) {
-        console.log(e);
+        console.error(e);
     }
 }
 
@@ -53,12 +65,14 @@ const enterPressed = (event) => {
         execute(event);
     }
 };
+
     //если нажат Ctrl, добавляет listener нажатия Enter
 const ctrlPressed = (event) => {    
     if (event.key === "Control") {
         event.currentTarget.addEventListener("keydown", enterPressed);
     }
 };
+
 //когда ctrl отпущен, удаляет listener нажатия Enter
 const ctrlUnpressed = (event) => {    
     event.currentTarget.removeEventListener("keydown", enterPressed);
@@ -89,6 +103,7 @@ consoleInput.addEventListener("keydown", enterPressed);
     //кнопка меняет режим ввода
 toggleInputTypeBtn.addEventListener("click", toggleInputType);   
 
+
 //во время прокрутки проверяет, прокручено ли сейчас до конца
 //нужно для автопрокрутки во время вывода в консоль 
 consoleOutput.addEventListener("scroll", (event) => {     
@@ -97,20 +112,24 @@ consoleOutput.addEventListener("scroll", (event) => {
     consoleScrolledDown = (posY <= 5);      //погрешность 5п на всякий
 });
 
+
 //button to clean console 
 clearConsoleBtn.addEventListener("click", () => {       
     consoleOutput.innerHTML = "";
     consoleInput.value = "";
 });
 
+
 //stop logging in console
 stopConsoleBtn.addEventListener("click", () => {        
     isLogging = !isLogging;
     if (isLogging) {
         console.log = interseptConsoleLog;
+        console.error = interseptErrorLog;
         stopConsoleBtn.textContent = "stop logging";
     } else {
         console.log = consoleLog;
+        console.error = consoleError;
         stopConsoleBtn.textContent = "start logging";
     }
 
@@ -127,11 +146,11 @@ consoleOutput.addEventListener("mouseup", (e) => {
     }
     isSelecting = false;
 });
-
 // предотвратить фокус на ввод, если начато выделение текста
 consoleOutput.addEventListener("selectstart", (e) => { 
     isSelecting = true;
 });
+
 
 //simple counter for console output
 testConsoleBtn.onclick = async () => {      
@@ -173,6 +192,7 @@ consoleUpperBorder.addEventListener("mouseup", (event) => {
 });
 
 
+//hide and restore console
 const hideButton = document.getElementById("_hide-console-btn");
 const restoreButton = document.getElementById("_restore-console-btn");
 const hideRestoreConsole = () => {
