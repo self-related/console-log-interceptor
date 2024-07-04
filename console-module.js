@@ -81,7 +81,7 @@ const ctrlUnpressed = (event) => {
 };
 
 // callback для смены режима ввода (single-line, multi-line) 
-const toggleInputType = (event) => {   
+const toggleInputMode = (event) => {   
     isConsoleSingleLine = !isConsoleSingleLine;
     const button = event.currentTarget;
     if (isConsoleSingleLine) {        //добавляет listener Enter, убирает Ctrl
@@ -89,11 +89,13 @@ const toggleInputType = (event) => {
         consoleInput.removeEventListener("keydown", ctrlPressed);
         consoleInput.removeEventListener("keyup", ctrlUnpressed);
         button.textContent = "multi-line";
+        consoleInput.placeholder = "Enter";
     } else {        //добавляет listener Ctrl, убирает Enter 
         consoleInput.removeEventListener("keydown", enterPressed);
         consoleInput.addEventListener("keydown", ctrlPressed);
         consoleInput.addEventListener("keyup", ctrlUnpressed);
         button.textContent = "single-line";
+        consoleInput.placeholder = "Ctrl + Enter";
     }
 }
 
@@ -103,7 +105,7 @@ const toggleInputType = (event) => {
 consoleInput.addEventListener("keydown", enterPressed);
 
     //кнопка меняет режим ввода
-toggleConsoleInputTypeBtn.addEventListener("click", toggleInputType);   
+toggleConsoleInputTypeBtn.addEventListener("click", toggleInputMode);   
 
 
 //во время прокрутки проверяет, прокручено ли сейчас до конца
@@ -301,6 +303,7 @@ function initConsole() {
             position: absolute;
             bottom: 0;
             resize: none;
+            padding-left: 5px;
         }
         #_console-input:focus {
             outline: 0;
