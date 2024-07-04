@@ -172,18 +172,35 @@ consoleUpperBorder.addEventListener("mouseup", (event) => {
 });
 
 
+const hideButton = document.getElementById("_hide-console-btn");
+const restoreButton = document.getElementById("_restore-console-btn");
+const hideRestoreConsole = () => {
+    consoleDiv.classList.toggle("hide");
+    restoreButton.classList.toggle("hide");
+};
+hideButton.onclick = hideRestoreConsole;
+restoreButton.onclick = hideRestoreConsole;
+
 
 // init console html and css
 function initConsole() {
     const consoleDiv = document.createElement("div");
     consoleDiv.id = "_console-div";
     const consoleStyle = document.createElement("style");
+    
+    const restoreButton = document.createElement("button");
+    restoreButton.className = "button hide";
+    restoreButton.id = "_restore-console-btn"
+    restoreButton.textContent = "▲";
+
     document.body.appendChild(consoleDiv);
+    document.body.appendChild(restoreButton);
     document.head.appendChild(consoleStyle);
 
     consoleDiv.innerHTML = `
     <div id="_upper-border"></div>
     <div class="console-panel" id="console-panel">
+        <button id="_hide-console-btn" class="button">▼</button>
         <button id="_clear-console-btn" class="button">clear</button>
         <button id="_stop-console-btn" class="button">stop logging</button>
         <button id="_test-console-btn" class="button">test output</button>
@@ -194,6 +211,18 @@ function initConsole() {
     `;
 
     consoleStyle.innerHTML = `
+        #_restore-console-btn {
+            width: 20px;
+            height: 20px;
+            font-size: 15px;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            z-index: 99;
+        }
+        .hide {
+            visibility: hidden;
+        }
         .button {
             border: 0;
             margin-left: 5px;
