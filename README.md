@@ -2,10 +2,9 @@
 Console that can intercept console.log messages and execute scripts (calls eval() )
 
 Using:
-add console-module.js as a module in html file:
+add console-module.js script in html file:
 ```
-<script type="module" src="./console-module.js"></script>
+<script src="./console-module.js"></script>
 ```
-That's all.
 
-![cli](https://github.com/self-related/console-log-interceptor/assets/105994362/7583e766-fa87-41ff-820a-af856969b43d)
+![1 1](https://github.com/self-related/console-log-interceptor/assets/105994362/a0c050e6-e95b-47f8-aa7a-7dd2f5ad45cd)
