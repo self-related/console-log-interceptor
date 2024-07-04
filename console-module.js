@@ -7,22 +7,24 @@ const consoleOutput = document.getElementById("_console-output");
 const clearConsoleBtn = document.getElementById("_clear-console-btn");
 const stopConsoleBtn = document.getElementById("_stop-console-btn");
 const testConsoleBtn = document.getElementById("_test-console-btn");
-const toggleInputTypeBtn = document.getElementById("_toggle-input-type-btn");
+const toggleConsoleInputTypeBtn = document.getElementById("_toggle-input-type-btn");
 const consoleUpperBorder = document.getElementById("_upper-border");
 const consoleDiv = document.getElementById("_console-div")
 const consolePanel = document.getElementById("_console-panel");
+const hideConsoleButton = document.getElementById("_hide-console-btn");
+const restoreConsoleButton = document.getElementById("_restore-console-btn");
 const consoleLog = console.log; //preserve actual console.log
 const consoleError = console.error; //preserve actual console.error
 
 //Bind console.log and console.error
 console.log = interseptConsoleLog;
-console.error = interseptErrorLog;
+console.error = interseptConsoleError;
 
 ///States
-let consoleScrolledDown = true;
-let isLogging = true;
-let isSingleLine = true;
-let isSelecting = false; //когда текст не выделяется, фокус на _console-input; иначе без фокуса
+let isConsoleScrolledDown = true;
+let isConsoleLogging = true;
+let isConsoleSingleLine = true;
+let isConsoleSelecting = false; //когда текст не выделяется, фокус на _console-input; иначе без фокуса
 
 
 ///Functions
@@ -31,22 +33,22 @@ function interseptConsoleLog(msg) {
     //split messages by \n and push them one by one
     const msgs = msg.split?.('\n') ?? [msg]; //if not a string, put all msg in array
     msgs.forEach((msg) => consoleOutput.insertAdjacentHTML('beforeend', `<p>${msg}</p>`));
-    if (consoleScrolledDown) { // проскроллить вниз автоматически, если уже было внизу
+    if (isConsoleScrolledDown) { // проскроллить вниз автоматически, если уже было внизу
         consoleOutput.scroll(consoleOutput.scrollLeft, consoleOutput.scrollHeight);
     }
 }
 
 //same as above, but for console.error with red colored text
-function interseptErrorLog(msg) {
+function interseptConsoleError(msg) {
     consoleError(msg);
     const msgs = msg.split?.('\n') ?? [msg];
     msgs.forEach((msg) => consoleOutput.insertAdjacentHTML('beforeend', `<p style="color: red">${msg}</p>`));
-    if (consoleScrolledDown) {
+    if (isConsoleScrolledDown) {
         consoleOutput.scroll(consoleOutput.scrollLeft, consoleOutput.scrollHeight);
     }
 }
 
-function execute(event) {
+function executeConsoleCommand(event) {
     const cmd = event.currentTarget.value;
     event.currentTarget.value = "";
     try {
@@ -62,7 +64,7 @@ function execute(event) {
 const enterPressed = (event) => {    
     if (event.key === "Enter") {
         event.preventDefault();     //не добавлять отступ в <textarea>
-        execute(event);
+        executeConsoleCommand(event);
     }
 };
 
@@ -80,9 +82,9 @@ const ctrlUnpressed = (event) => {
 
 // callback для смены режима ввода (single-line, multi-line) 
 const toggleInputType = (event) => {   
-    isSingleLine = !isSingleLine;
+    isConsoleSingleLine = !isConsoleSingleLine;
     const button = event.currentTarget;
-    if (isSingleLine) {        //добавляет listener Enter, убирает Ctrl
+    if (isConsoleSingleLine) {        //добавляет listener Enter, убирает Ctrl
         consoleInput.addEventListener("keydown", enterPressed);
         consoleInput.removeEventListener("keydown", ctrlPressed);
         consoleInput.removeEventListener("keyup", ctrlUnpressed);
@@ -101,7 +103,7 @@ const toggleInputType = (event) => {
 consoleInput.addEventListener("keydown", enterPressed);
 
     //кнопка меняет режим ввода
-toggleInputTypeBtn.addEventListener("click", toggleInputType);   
+toggleConsoleInputTypeBtn.addEventListener("click", toggleInputType);   
 
 
 //во время прокрутки проверяет, прокручено ли сейчас до конца
@@ -109,7 +111,7 @@ toggleInputTypeBtn.addEventListener("click", toggleInputType);
 consoleOutput.addEventListener("scroll", (event) => {     
     const element = event.currentTarget;
     const posY = element.scrollHeight - (element.scrollTop + element.clientHeight);
-    consoleScrolledDown = (posY <= 5);      //погрешность 5п на всякий
+    isConsoleScrolledDown = (posY <= 5);      //погрешность 5п на всякий
 });
 
 
@@ -122,10 +124,10 @@ clearConsoleBtn.addEventListener("click", () => {
 
 //stop logging in console
 stopConsoleBtn.addEventListener("click", () => {        
-    isLogging = !isLogging;
-    if (isLogging) {
+    isConsoleLogging = !isConsoleLogging;
+    if (isConsoleLogging) {
         console.log = interseptConsoleLog;
-        console.error = interseptErrorLog;
+        console.error = interseptConsoleError;
         stopConsoleBtn.textContent = "stop logging";
     } else {
         console.log = consoleLog;
@@ -141,14 +143,14 @@ consoleOutput.addEventListener("mouseup", (e) => {
     if (e.button === 2) {
         return;
     }
-    if (!isSelecting) {
+    if (!isConsoleSelecting) {
         consoleInput.focus();
     }
-    isSelecting = false;
+    isConsoleSelecting = false;
 });
 // предотвратить фокус на ввод, если начато выделение текста
 consoleOutput.addEventListener("selectstart", (e) => { 
-    isSelecting = true;
+    isConsoleSelecting = true;
 });
 
 
@@ -165,7 +167,7 @@ testConsoleBtn.onclick = async () => {
 
 //callback for changing console's height, outer variable to add and remove the exact listener later
 let changeConsoleHeight;    
-let preventSelection = (event) => event.preventDefault(); // callback to disable text selecting while moving
+let preventConsoleSelection = (event) => event.preventDefault(); // callback to disable text selecting while moving
 
 //make top border resizable
 consoleUpperBorder.addEventListener("mousedown", (event) => {
@@ -182,25 +184,22 @@ consoleUpperBorder.addEventListener("mousedown", (event) => {
         };
     //add listener to window which calculates Y on every mouse move
     window.addEventListener("mousemove", changeConsoleHeight);
-    consoleDiv.addEventListener("selectstart", preventSelection); //prevent text selecting
+    consoleDiv.addEventListener("selectstart", preventConsoleSelection); //prevent text selecting
 } );
 //remove listeners when mouse is unpressed
 consoleUpperBorder.addEventListener("mouseup", (event) => {
     window.removeEventListener("mousemove", changeConsoleHeight);
-    consoleDiv.removeEventListener("selectstart", preventSelection);
+    consoleDiv.removeEventListener("selectstart", preventConsoleSelection);
     event.stopImmediatePropagation();
 });
 
-
 //hide and restore console
-const hideButton = document.getElementById("_hide-console-btn");
-const restoreButton = document.getElementById("_restore-console-btn");
 const hideRestoreConsole = () => {
     consoleDiv.classList.toggle("hide");
-    restoreButton.classList.toggle("hide");
+    restoreConsoleButton.classList.toggle("hide");
 };
-hideButton.onclick = hideRestoreConsole;
-restoreButton.onclick = hideRestoreConsole;
+hideConsoleButton.onclick = hideRestoreConsole;
+restoreConsoleButton.onclick = hideRestoreConsole;
 
 
 // init console html and css
@@ -209,13 +208,13 @@ function initConsole() {
     consoleDiv.id = "_console-div";
     const consoleStyle = document.createElement("style");
     
-    const restoreButton = document.createElement("button");
-    restoreButton.className = "button hide";
-    restoreButton.id = "_restore-console-btn"
-    restoreButton.textContent = "▲";
+    const restoreConsoleButton = document.createElement("button");
+    restoreConsoleButton.className = "button hide";
+    restoreConsoleButton.id = "_restore-console-btn"
+    restoreConsoleButton.textContent = "▲";
 
     document.body.appendChild(consoleDiv);
-    document.body.appendChild(restoreButton);
+    document.body.appendChild(restoreConsoleButton);
     document.head.appendChild(consoleStyle);
 
     consoleDiv.innerHTML = `
