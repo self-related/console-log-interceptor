@@ -1,4 +1,6 @@
 # console-log-interceptor
+Deploy: https://self-related.github.io/console-log-interceptor/ 
+
 Terminal for a webpage that intercepts console.log and console.error messages and executes JS scripts (calls eval() function).
 
 Using:
